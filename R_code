@@ -1,1 +1,117 @@
+# Load data from "Chapman_Cuali.csv" into a DataFrame, converting string columns to factors.
+Chapman.Cuali <- read.csv("Chapman_Cuali.csv", header = T, sep = ",", stringsAsFactors = T)
+
+# Change the reference level of the 'Presion' factor to 'Optima'.
+Chapman.Cuali$Presion <- relevel(Chapman.Cuali$Presion, ref = "Optima")
+
+# Change the reference level of the 'IMC' factor to 'Normal'.
+Chapman.Cuali$IMC <- relevel(Chapman.Cuali$IMC, ref = "Normal")
+
+# Fit a logistic regression model with 'Coronarios' as the response and 'Presion' as the predictor.
+Ajuste.Presion <- glm(Coronarios ~ Presion, data = Chapman.Cuali, family = binomial)
+
+# Display a summary of the logistic regression model.
+summary(Ajuste.Presion)
+
+# (Commented out) Create a modified 'Presion' variable.
+# Chapman.Cuali$PresionM <- Chapman.Cuali$Presion
+
+# (Commented out) Set contrasts for the modified 'Presion' variable.
+# contrasts(Chapman.Cuali$PresionM) <- contr.sum(4)
+
+# (Commented out) Fit a logistic regression model with the modified 'Presion' variable.
+# Ajuste.PresionM <- glm(Coronarios ~ PresionM, data = Chapman.Cuali, family = binomial)
+
+# (Commented out) Display a summary of the logistic regression model with modified 'Presion'.
+# summary(Ajuste.PresionM)
+
+# Create a contingency table of 'Presion' levels against 'Coronarios'.
+table(Chapman.Cuali$Presion, Chapman.Cuali$Coronarios)
+
+# Retrieve the first 10 fitted values (predicted probabilities) from the logistic regression model.
+fitted.values(Ajuste.Presion)[1:10]
+
+# (Commented out) Retrieve the first 10 fitted values from the logistic regression model with modified 'Presion'.
+# fitted.values(Ajuste.PresionM)[1:10]
+
+# Compare the fitted values with the actual 'Coronarios' data in a table.
+table(fitted.values(Ajuste.Presion), Chapman.Cuali$Coronarios)
+
+# Display a summary of the logistic regression model again.
+summary(Ajuste.Presion)
+
+# (Commented out) Display a summary of the logistic regression model with modified 'Presion'.
+# summary(Ajuste.PresionM)
+
+# Calculate confidence intervals for the model parameters.
+confint.default(Ajuste.Presion)
+
+# (Commented out) Calculate confidence intervals for the model with modified 'Presion'.
+# confint.default(Ajuste.PresionM)
+
+# Exponentiate the confidence intervals to interpret them as odds ratios.
+exp(confint.default(Ajuste.Presion))
+
+# Display the general model 'Ajuste.Presion'.
+Ajuste.Presion
+
+# Fit a null logistic regression model (with only an intercept) for comparison.
+Ajuste.0 <- glm(Coronarios ~ 1, data = Chapman.Cuali, family = binomial)
+
+# Compare the null model with the fitted model using an ANOVA test.
+anova(Ajuste.0, Ajuste.Presion)
+
+# Calculate the p-value for the test statistic from the ANOVA comparison.
+pchisq(anova(Ajuste.0, Ajuste.Presion)$Deviance[2], anova(Ajuste.0, Ajuste.Presion)$Df[2], lower.tail = F)
+
+# (Commented out) Compare the null model with the model with modified 'Presion' using ANOVA.
+# anova(Ajuste.0, Ajuste.PresionM)
+
+# (Commented out) Calculate the p-value for the test statistic from the ANOVA comparison with modified 'Presion'.
+# pchisq(anova(Ajuste.0, Ajuste.PresionM)$Deviance[2], anova(Ajuste.0, Ajuste.PresionM)$Df[2], lower.tail = F)
+
+# Calculate and display the first 10 Pearson residuals from the model.
+residuals(Ajuste.Presion, type = "pearson")[1:10]
+
+# Tabulate Pearson residuals.
+table(residuals(Ajuste.Presion, type = "pearson"))
+
+# Calculate and display the first 10 deviance residuals from the model.
+residuals(Ajuste.Presion, type = "deviance")[1:10]
+
+# Tabulate deviance residuals.
+table(residuals(Ajuste.Presion, type = "deviance"))
+
+# Calculate and display the first 10 standardized Pearson residuals.
+rstandard(Ajuste.Presion, type = "pearson")[1:10]
+
+# Tabulate standardized Pearson residuals.
+table(rstandard(Ajuste.Presion, type = "pearson"))
+
+# Calculate and display the first 10 standardized deviance residuals.
+rstandard(Ajuste.Presion, type = "deviance")[1:10]
+
+# Tabulate standardized deviance residuals.
+table(rstandard(Ajuste.Presion, type = "deviance"))
+
+# Calculate and display the first 10 hat values (leverage values).
+hatvalues(Ajuste.Presion)[1:10]
+
+# Tabulate hat values.
+table(hatvalues(Ajuste.Presion))
+
+# Calculate and display the first 10 Cook's distance values.
+cooks.distance(Ajuste.Presion)[1:10]
+
+# Tabulate Cook's distance values.
+table(hatvalues(Ajuste.Presion))
+
+# Load the pROC library for ROC curve analysis.
+library(pROC)
+
+# Calculate the ROC curve using actual and fitted values.
+CurvaROC <- roc(Chapman.Cuali$Coronarios, fitted.values(Ajuste.Presion))
+
+# Display the ROC curve.
+plot(CurvaROC)
 
